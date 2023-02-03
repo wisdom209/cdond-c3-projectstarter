@@ -1,29 +1,41 @@
 ---
-  - name: "Update"
-    become: true
-    apt:
-      update_cache: yes
-      cache_valid_time: 86400
-  
-  - name: "delete outdated dependencies"
-    become: true
-    apt:
-      autoremove: yes
+- name: "Update"
+  become: true
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
 
-  - name: "upgrade packages"
-    become: true
-    apt: 
-      upgrade: yes
+- name: "delete outdated dependencies"
+  become: true
+  apt:
+    autoremove: yes
 
-  - name: "Unarchive build artifact"
-    become: true
-    unarchive:
-      src: "files/artifact.tar.gz"
-      dest: .
+- name: "upgrade packages"
+  become: true
+  apt:
+    upgrade: yes
 
-  - name: "Start application"
-    become: true
-    shell: |
-      npm install
-      pm2 stop default
-      pm2 start npm -- start
+- name: "Unarchive build artifact"
+  become: true
+  unarchive:
+    src: "files/artifact.tar.gz"
+    dest: .
+
+- name: Install npm
+  become: true
+  apt:
+    name: npm
+    state: present
+
+- name: Install pm2
+  become: true
+  npm:
+    name: pm2
+    state: present
+
+- name: "Start application"
+  become: true
+  shell: |
+    npm install
+    pm2 stop default
+    pm2 start npm -- start
