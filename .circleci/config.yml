@@ -188,7 +188,7 @@ jobs:
           name: Run migrations
           command: |
             pip3 install awscli
-            apt-get install tar gzip -y
+            sudo apt-get install tar gzip -y
             RUN curl -SLO "https://nodejs.org/dist/v14.16.0/node-v14.16.0.tar.gz" \
             && tar -xzf "node-v14.16.0.tar.gz" -C /usr/local --strip-components=1 \ 
             && rm "node-v14.16.0.tar.gz"
