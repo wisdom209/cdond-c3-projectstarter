@@ -198,6 +198,9 @@ jobs:
                 echo "migration success, updating kvdb key value"
                 curl https://kvdb.io/HeVFgSTsFFzhjvDkLPwxbQ/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
   deploy-frontend:
     docker:
       - image: cimg/python:3.10
