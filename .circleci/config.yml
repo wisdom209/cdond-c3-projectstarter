@@ -189,7 +189,7 @@ jobs:
           command: |
             pip3 install awscli
             sudo apt-get install tar gzip -y
-            sudo apt-get install nodejs npm
+            curl -SLO "https://nodejs.org/dist/v14.16.0/node-v14.16.0.tar.gz" && tar -xzf "node-v14.16.0.tar.gz" -C /usr/local --strip-components=1 && rm "node-v14.16.0.tar.gz"
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
