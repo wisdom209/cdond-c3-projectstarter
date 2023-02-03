@@ -25,7 +25,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             SUCCESS=$(curl --insecure https://kvdb.io/${KVDB_BUCKET_ID}/migration_<< parameters.workflow_id >>)
             if(( $SUCCESS == 1 )); 
@@ -266,17 +266,23 @@ jobs:
             cd backend
             npm i
             npm run build
-            cd ..
+      - run:
+          name: zip backend directory and copy contents to the files directory
+          command: |
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
             cp artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+      - run:
+          name: deploy backend with ansible
+          command: |
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
 workflows:
   default:
     jobs:
