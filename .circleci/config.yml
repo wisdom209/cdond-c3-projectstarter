@@ -368,10 +368,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Get old stack workflow id
-          command: |
- 
-      - run:
           name: Remove old stacks and files
           command: |
             # Fetch the Old workflow ID
