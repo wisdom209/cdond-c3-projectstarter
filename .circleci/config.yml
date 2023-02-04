@@ -350,7 +350,7 @@ jobs:
                     --stack-name InitialStack \
                     --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID}" \
                     --tags project=udapeople
-            
+
             echo -n "OldWorkflowID: "
             cat ~/OldWorkflowID.txt
             echo Current Workflow Id: "${CIRCLE_WORKFLOW_ID}"
@@ -366,7 +366,8 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
-      - checkout
+      - checkoutr
+      - run: yum install tar gzip -y
       - attach_workspace:
           at: ~/
       - run:
@@ -374,15 +375,15 @@ jobs:
           command: |
             # Fetch the Old workflow ID
             export OldWorkflowID=$(cat ~/OldWorkflowID.txt)
-            
+
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID}"
-            
+
             # Fetch the stack names          
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                     --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}" 
-            
+
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rm "s3://${OldWorkflowID}" --recursive
