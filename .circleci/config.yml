@@ -160,6 +160,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
   configure-infrastructure:
     docker:
       - image: cimg/python:3.10
@@ -182,7 +183,7 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
           full_workflow_id: ${CIRCLE_WORKFLOW_ID}
-      # Here's where you will add some code to rollback on failure
+      - revert-migrations
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -332,7 +333,39 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
           full_workflow_id: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations
-      # Here's where you will add some code to rollback on failure
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum install -y tar gzip
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation \
+               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+               --no-paginate --output text > ~/OldWorkflowID.txt
+            cat ~/OldWorkflowID.txt
+
+            aws cloudformation deploy \
+                    --template-file .circleci/files/cloudfront.yml \
+                    --stack-name InitialStack \
+                    --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID}" \
+                    --tags project=udapeople
+            
+            echo -n OldWorkflowID:
+            cat ~/OldWorkflowID.txt
+            echo Current Workflow Id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - OldWorkflowID.txt
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
 workflows:
   default:
     jobs:
@@ -361,3 +394,5 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
