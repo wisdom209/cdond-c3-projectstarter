@@ -384,6 +384,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
+            ls
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
