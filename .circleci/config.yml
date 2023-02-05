@@ -382,7 +382,7 @@ jobs:
             # start here
 
             # Get a list of all CloudFormation stacks starting with "udapeople"
-            stacks=$(aws cloudformation list-stacks --query "StackSummaries[?starts_with(StackName, 'udapeople') && StackName != "udapeople-${CIRCLE_WORKFLOW_ID}"].StackName" --output text)
+            stacks=$(aws cloudformation list-stacks --query "StackSummaries[?starts_with(StackName, 'udapeople') && StackName != 'udapeople-${CIRCLE_WORKFLOW_ID}'].StackName" --output text)
 
             # Delete each CloudFormation stack
             for stack in $stacks; do
@@ -390,7 +390,7 @@ jobs:
             done
 
             # Get a list of all S3 buckets starting with "udapeople"
-            buckets=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'udapeople') && Name != "udapeople-${CIRCLE_WORKFLOW_ID}"].Name" --output text)
+            buckets=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'udapeople') && Name != 'udapeople-${CIRCLE_WORKFLOW_ID}'].Name" --output text)
 
             # Delete each S3 bucket
             for bucket in $buckets; do
