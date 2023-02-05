@@ -115,7 +115,7 @@ jobs:
             npm audit --audit-level=critical
   scan-backend:
     docker:
-      - image: circleci/node:13.8.0 
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -347,7 +347,7 @@ jobs:
 
             aws cloudformation deploy \
                     --template-file .circleci/files/cloudfront.yml \
-                    --stack-name InitialStack \
+                    --stack-name udapeoplestack \
                     --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID}" \
                     --tags project=udapeople
 
@@ -381,23 +381,27 @@ jobs:
 
             # start here
 
-            # Get a list of all CloudFormation stacks starting with "udapeople"
-            stacks=$(aws cloudformation list-stacks --query "StackSummaries[?starts_with(StackName, 'udapeople') && StackName != 'udapeople-${CIRCLE_WORKFLOW_ID}'].StackName" --output text)
+            if [[ "udapeople-${CIRCLE_WORKFLOW_ID}" != "${OldWorkflowID}" ]]
+            then
+              # Get a list of all S3 buckets starting with "udapeople"
+              buckets=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'udapeople') && Name != 'udapeople-${CIRCLE_WORKFLOW_ID}'].Name" --output text)
 
-            # Delete each CloudFormation stack
-            for stack in $stacks; do
-              aws cloudformation delete-stack --stack-name $stack
-            done
+              # Delete each S3 bucket
+              for bucket in $buckets; do
+                aws s3 rb s3://$bucket --force
+              done
+              
+              # Get a list of all CloudFormation stacks starting with "udapeople" and not same as current stack
+              stacks=$(aws cloudformation list-stacks --query "StackSummaries[?starts_with(StackName, 'udapeople') && StackName != 'udapeople-backend-${CIRCLE_WORKFLOW_ID}' && StackName != 'udapeople-frontend-${CIRCLE_WORKFLOW_ID}'].StackName" --output text)
 
-            # Get a list of all S3 buckets starting with "udapeople"
-            buckets=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'udapeople') && Name != 'udapeople-${CIRCLE_WORKFLOW_ID}'].Name" --output text)
+              # Delete each CloudFormation stack
+              for stack in $stacks; do
+                aws cloudformation delete-stack --stack-name $stack
+              done
 
-            # Delete each S3 bucket
-            for bucket in $buckets; do
-              aws s3 rb s3://$bucket --force
-            done
+            fi
 
-            # end here 
+            # end here
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations
