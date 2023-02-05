@@ -392,19 +392,9 @@ jobs:
                 aws cloudformation delete-stack --stack-name $stack
               done
 
-               # Get a list of all S3 buckets starting with "udapeople"
-              buckets=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'udapeople') && Name != 'udapeople-${CIRCLE_WORKFLOW_ID}'].Name" --output text)
-
-              # Delete each S3 bucket
-              for bucket in $buckets; do
-                # Check if the bucket exists
-                exists=$(aws s3api head-bucket --bucket $bucket 2>&1 | grep -c "NoSuchBucket")
-
-                # If the bucket exists, delete it
-                if [ "$exists" -eq "0" ]; then
-                  aws s3 rb s3://$bucket --force
-                fi
-              done              
+              # Delete old bucket
+              aws s3 rb s3://${OldWorkflowID} --force
+                          
             fi
 
             # end here
