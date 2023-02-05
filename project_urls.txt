@@ -1,3 +1,0 @@
-URL01 - https://github.com/wisdom209/cdond-c3-projectstarter
-URL02 - http://udapeople-71008918-4282-4363-9fc2-cbed59c55c96.s3-website-us-east-1.amazonaws.com
-
