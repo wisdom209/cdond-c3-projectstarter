@@ -384,7 +384,7 @@ jobs:
             if [[ "udapeople-${CIRCLE_WORKFLOW_ID}" != "${OldWorkflowID}" ]]
             then
               
-              Get a list of all S3 buckets starting with "udapeople"
+              # Get a list of all S3 buckets starting with "udapeople"
               buckets=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'udapeople') && Name != 'udapeople-${CIRCLE_WORKFLOW_ID}'].Name" --output text)   
               # Delete each S3 bucket
               for bucket in $buckets; do
