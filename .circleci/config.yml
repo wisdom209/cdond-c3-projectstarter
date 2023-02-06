@@ -40,7 +40,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0 
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -376,17 +376,13 @@ jobs:
             # Fetch the Old workflow ID
             export OldWorkflowID=$(cat ~/OldWorkflowID.txt)
 
-            echo OldWorkflowID: "${OldWorkflowID}"
+            # echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID}"
 
             # start here
 
             if [[ "udapeople-${CIRCLE_WORKFLOW_ID}" != "${OldWorkflowID}" ]]
             then
-
-              # Delete old bucket
-              # aws s3 rb s3://${OldWorkflowID} --force
-              aws s3 rm "s3://${OldWorkflowID}" --recursive
              
               # Get a list of all CloudFormation stacks starting with "udapeople" and not same as current stack
               stacks=$(aws cloudformation list-stacks --query "StackSummaries[?starts_with(StackName, 'udapeople') && StackName != 'udapeople-backend-${CIRCLE_WORKFLOW_ID}' && StackName != 'udapeople-frontend-${CIRCLE_WORKFLOW_ID}'].StackName" --output text)
@@ -395,7 +391,21 @@ jobs:
               for stack in $stacks; do
                 aws cloudformation delete-stack --stack-name $stack
               done
-                          
+
+               # Get a list of all S3 buckets starting with "udapeople"
+              buckets=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'udapeople') && Name != 'udapeople-${CIRCLE_WORKFLOW_ID}'].Name" --output text)
+
+              # Delete each S3 bucket
+              for bucket in $buckets; do
+                # Check if the bucket exists
+                # exists=$(aws s3api head-bucket --bucket $bucket 2>&1 | grep -c "NoSuchBucket")
+                # echo "$exists"
+                # # If the bucket exists, delete it
+                # if [ "$exists" -eq "0" ]; then
+                #   aws s3 rb s3://$bucket --force
+                # fi
+                aws s3 rb s3://$bucket --force
+              done              
             fi
 
             # end here
