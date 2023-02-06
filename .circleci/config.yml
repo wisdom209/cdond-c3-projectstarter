@@ -334,7 +334,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies 
+          name: Install dependencies
           command: |
             yum install -y tar gzip
       - run:
@@ -383,6 +383,10 @@ jobs:
 
             if [[ "udapeople-${CIRCLE_WORKFLOW_ID}" != "${OldWorkflowID}" ]]
             then
+
+              # Delete old bucket
+              # aws s3 rb s3://${OldWorkflowID} --force
+              aws s3 rm "s3://${OldWorkflowID}" --recursive
              
               # Get a list of all CloudFormation stacks starting with "udapeople" and not same as current stack
               stacks=$(aws cloudformation list-stacks --query "StackSummaries[?starts_with(StackName, 'udapeople') && StackName != 'udapeople-backend-${CIRCLE_WORKFLOW_ID}' && StackName != 'udapeople-frontend-${CIRCLE_WORKFLOW_ID}'].StackName" --output text)
@@ -391,9 +395,6 @@ jobs:
               for stack in $stacks; do
                 aws cloudformation delete-stack --stack-name $stack
               done
-
-              # Delete old bucket
-              aws s3 rb s3://${OldWorkflowID} --force
                           
             fi
 
