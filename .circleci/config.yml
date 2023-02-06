@@ -334,7 +334,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Install dependencies 
           command: |
             yum install -y tar gzip
       - run:
