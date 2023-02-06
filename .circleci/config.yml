@@ -401,7 +401,7 @@ jobs:
               # Get a list of all CloudFormation stacks starting with "udapeople" and not same as current stack
               stacks=$(aws cloudformation list-stacks --query "StackSummaries[?starts_with(StackName, 'udapeople') && StackName != 'udapeople-backend-${CIRCLE_WORKFLOW_ID}' && StackName != 'udapeople-frontend-${CIRCLE_WORKFLOW_ID}'].StackName" --output text)
 
-              # Delete each CloudFormation stack
+              # Delete each CloudFormation stack 
               for stack in $stacks; do
                 aws cloudformation delete-stack --stack-name $stack
               done      
